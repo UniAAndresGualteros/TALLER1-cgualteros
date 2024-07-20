@@ -1,11 +1,12 @@
 from flask import Flask,  request, render_template, redirect, url_for
-from flask_login import LoginManager, login_required, login_user # type: ignore
+from flask_login import LoginManager, login_required, login_user, current_user # type: ignore
 from dotenv import load_dotenv # type: ignore
 from flask_restful import Api # type: ignore
 from db import db
 from controllers.guarderia_controller import GuarderiaController
 from controllers.cuidadores_controller import CuidadoresController
 from controllers.perros_controller import PerrosController
+from controllers.inicio_controller import InicioController
 from models.user import User
 import os
 
@@ -49,7 +50,11 @@ def login():
         user = User.query.filter_by(username=username, password=password).first()
         if user:
             login_user(user)
-            return redirect(url_for("main"))
+            
+            if user.is_admin:
+                return redirect(url_for("perroscontroller"))
+            else:
+                return redirect(url_for("iniciocontroller"))
     return render_template("login.html")
 
         
@@ -58,6 +63,7 @@ def login():
 api.add_resource(GuarderiaController, "/guarderias")
 api.add_resource(CuidadoresController, "/cuidadores")
 api.add_resource(PerrosController, "/perros")
+api.add_resource(InicioController, "/inicio")
  
 
 
